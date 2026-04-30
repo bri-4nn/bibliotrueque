@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Bibliotrueque UPIICSA</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="nav-container">
+                <div class="logo-container">
+                    <a href="index.html" class="logo-link">
+                        <div class="logo-img"><svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="50" height="50" rx="8" fill="#2E7D32"/><path d="M12 15H38V35H12V15Z" fill="#81C784"/><path d="M15 20L25 12L35 20V30H15V20Z" fill="#4CAF50"/><path d="M20 25H30M20 28H30" stroke="white" stroke-width="2"/><path d="M25 20V30" stroke="white" stroke-width="2"/><text x="25" y="42" text-anchor="middle" fill="white" font-size="8" font-weight="bold">BT</text></svg></div>
+                        <div class="logo-text"><div class="logo-main">BIBLIO TRUECUE UPIICSA</div><div class="logo-sub">Mercado seguro de libros</div><div class="slogan">"No se cambia un libro, se cambia una vida"</div></div>
+                    </a>
+                </div>
+                <div class="user-actions">
+                    <a href="login.html" class="action-btn secondary"><i class="fas fa-sign-in-alt"></i><span>Iniciar Sesión</span></a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="form-container">
+        <div class="form-card">
+            <div class="form-header">
+                <h2>Crear Cuenta</h2>
+                <p>Regístrate con tu correo institucional IPN</p>
+            </div>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label class="form-label" for="nombre">Nombre Completo</label>
+                    <input type="text" id="nombre" class="form-input" placeholder="Tu nombre completo" required>
+                    <div class="error-message" id="nombreError">El nombre es requerido</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="email">Correo Institucional</label>
+                    <input type="email" id="email" class="form-input" placeholder="ejemplo@alumno.ipn.mx" required>
+                    <div class="error-message" id="emailError">Debes usar un correo @alumno.ipn.mx o @ipn.mx</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="carrera">Carrera</label>
+                    <select id="carrera" class="form-select" required>
+                        <option value="">Selecciona tu carrera</option>
+                        <option value="informatica">Ingeniería en Informática</option>
+                        <option value="industrial">Ingeniería Industrial</option>
+                        <option value="transporte">Ingeniería en Transporte</option>
+                        <option value="administracion">Administración Industrial</option>
+                    </select>
+                    <div class="error-message" id="carreraError">Selecciona tu carrera</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="semestre">Semestre</label>
+                    <select id="semestre" class="form-select" required>
+                        <option value="">Selecciona tu semestre</option>
+                        <option value="1">1er Semestre</option><option value="2">2do Semestre</option>
+                        <option value="3">3er Semestre</option><option value="4">4to Semestre</option>
+                        <option value="5">5to Semestre</option><option value="6">6to Semestre</option>
+                        <option value="7">7mo Semestre</option><option value="8">8vo Semestre</option>
+                        <option value="9">9no Semestre</option><option value="10">10mo Semestre</option>
+                    </select>
+                    <div class="error-message" id="semestreError">Selecciona tu semestre</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">Contraseña</label>
+                    <input type="password" id="password" class="form-input" placeholder="Mínimo 8 caracteres" required>
+                    <div class="error-message" id="passwordError">La contraseña debe tener al menos 8 caracteres</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="confirmPassword">Confirmar Contraseña</label>
+                    <input type="password" id="confirmPassword" class="form-input" placeholder="Repite tu contraseña" required>
+                    <div class="error-message" id="confirmError">Las contraseñas no coinciden</div>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="terminos" required> Acepto los <a href="#" style="color: var(--primary-green);">Términos y Condiciones</a></label>
+                    <div class="error-message" id="terminosError">Debes aceptar los términos</div>
+                </div>
+                <button type="submit" class="submit-btn"><i class="fas fa-user-plus"></i> Crear Cuenta</button>
+                <div class="success-message" id="successMessage">¡Registro exitoso! Redirigiendo...</div>
+            </form>
+            <div class="form-footer"><p>¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a></p></div>
+        </div>
+    </section>
+
+    <footer>...</footer>
+
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (Auth.isAuthenticated()) window.location.href = 'index.html';
+            
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const nombre = document.getElementById('nombre').value;
+                const email = document.getElementById('email').value;
+                const carrera = document.getElementById('carrera').value;
+                const semestre = document.getElementById('semestre').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const terminos = document.getElementById('terminos').checked;
+                
+                document.querySelectorAll('.error-message').forEach(err => err.style.display = 'none');
+                let isValid = true;
+                
+                if (nombre.trim() === '') { document.getElementById('nombreError').style.display = 'block'; isValid = false; }
+                if (!Auth.isValidIPNEmail(email)) { document.getElementById('emailError').style.display = 'block'; isValid = false; }
+                if (carrera === '') { document.getElementById('carreraError').style.display = 'block'; isValid = false; }
+                if (semestre === '') { document.getElementById('semestreError').style.display = 'block'; isValid = false; }
+                if (password.length < 8) { document.getElementById('passwordError').style.display = 'block'; isValid = false; }
+                if (password !== confirmPassword) { document.getElementById('confirmError').style.display = 'block'; isValid = false; }
+                if (!terminos) { document.getElementById('terminosError').style.display = 'block'; isValid = false; }
+                if (!isValid) return;
+                
+                try {
+                    Auth.register({ nombre, email, carrera, semestre, password });
+                    document.getElementById('successMessage').style.display = 'block';
+                    setTimeout(() => { window.location.href = 'perfil.html'; }, 2000);
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

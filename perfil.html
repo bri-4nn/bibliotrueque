@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Bibliotrueque UPIICSA</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .profile-container { padding: 40px 0; }
+        .profile-header { display: flex; align-items: center; gap: 30px; margin-bottom: 40px; padding: 30px; background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(46,125,50,0.1); flex-wrap: wrap; }
+        .profile-avatar { width: 120px; height: 120px; background: linear-gradient(135deg, var(--primary-green), var(--light-green)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white; font-weight: bold; }
+        .profile-info h2 { color: var(--primary-green); margin-bottom: 10px; }
+        .profile-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .stat-card { background: white; padding: 25px; border-radius: 10px; text-align: center; border-top: 4px solid var(--primary-green); }
+        .stat-number { font-size: 2.5rem; font-weight: bold; color: var(--primary-green); }
+        .tab-container { background: white; border-radius: 15px; overflow: hidden; }
+        .tab-header { display: flex; background: var(--light-gray); border-bottom: 2px solid var(--gray); }
+        .tab-button { padding: 15px 30px; background: none; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; flex: 1; }
+        .tab-button.active { background: white; color: var(--primary-green); border-bottom: 3px solid var(--primary-green); }
+        .tab-content { padding: 30px; display: none; }
+        .tab-content.active { display: block; }
+        .libro-item { background: var(--light-gray); padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 4px solid var(--light-green); }
+        .status-disponible { background: rgba(76,175,80,0.2); color: var(--primary-green); padding: 3px 10px; border-radius: 20px; font-size: 0.9rem; display: inline-block; }
+    </style>
+</head>
+<body>
+    <header><div class="container"><nav class="nav-container"><div class="logo-container"><a href="index.html" class="logo-link"><div class="logo-img"><svg width="50" height="50" viewBox="0 0 50 50"><rect width="50" height="50" rx="8" fill="#2E7D32"/><path d="M12 15H38V35H12V15Z" fill="#81C784"/><path d="M15 20L25 12L35 20V30H15V20Z" fill="#4CAF50"/><path d="M20 25H30M20 28H30" stroke="white" stroke-width="2"/><path d="M25 20V30" stroke="white" stroke-width="2"/><text x="25" y="42" text-anchor="middle" fill="white" font-size="8">BT</text></svg></div><div class="logo-text"><div class="logo-main">BIBLIO TRUECUE UPIICSA</div><div class="logo-sub">Mercado seguro de libros</div><div class="slogan">"No se cambia un libro, se cambia una vida"</div></div></a></div><div class="user-actions" id="userActions"></div></nav></div></header>
+
+    <section class="profile-container"><div class="container"><h1 class="page-title">Mi Perfil</h1>
+        <div class="profile-header" id="profileHeader"></div>
+        <div class="profile-stats"><div class="stat-card"><div class="stat-number" id="librosPublicados">0</div><div class="stat-label">Libros Publicados</div></div>
+        <div class="stat-card"><div class="stat-number" id="librosVendidos">0</div><div class="stat-label">Libros Vendidos</div></div>
+        <div class="stat-card"><div class="stat-number" id="calificacion">0.0</div><div class="stat-label">Calificación</div></div></div>
+        
+        <div class="tab-container"><div class="tab-header"><button class="tab-button active" data-tab="mis-libros">Mis Libros</button><button class="tab-button" data-tab="configuracion">Configuración</button></div>
+        <div class="tab-content active" id="mis-libros"><h3>Mis Libros Publicados</h3><div id="misLibrosList"></div></div>
+        <div class="tab-content" id="configuracion"><h3>Configuración de Cuenta</h3><form id="profileForm"><div class="form-group"><label class="form-label">Nombre</label><input type="text" id="editNombre" class="form-input"></div><div class="form-group"><label class="form-label">Carrera</label><select id="editCarrera" class="form-select"><option value="informatica">Ing. Informática</option><option value="industrial">Ing. Industrial</option><option value="transporte">Ing. Transporte</option><option value="administracion">Administración</option></select></div><div class="form-group"><label class="form-label">Semestre</label><select id="editSemestre" class="form-select"><option value="1">1er Semestre</option><option value="2">2do Semestre</option><option value="3">3er Semestre</option><option value="4">4to Semestre</option><option value="5">5to Semestre</option><option value="6">6to Semestre</option><option value="7">7mo Semestre</option><option value="8">8vo Semestre</option></select></div><button type="submit" class="submit-btn"><i class="fas fa-save"></i> Guardar Cambios</button></form></div></div>
+    </div></section>
+
+    <footer>...</footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!Auth.requireAuth()) return;
+            const userData = Auth.getUserData();
+            
+            document.getElementById('profileHeader').innerHTML = `
+                <div class="profile-avatar">${(userData.nombre || userData.email).charAt(0).toUpperCase()}</div>
+                <div class="profile-info"><h2>${userData.nombre || userData.email.split('@')[0]}</h2>
+                <p><i class="fas fa-envelope"></i> ${userData.email}</p>
+                <p><i class="fas fa-graduation-cap"></i> ${getCarreraName(userData.carrera) || 'No especificada'}</p>
+                <p><i class="fas fa-calendar"></i> Semestre ${userData.semestre || 'No especificado'}</p>
+                <a href="vender.html" class="action-btn" style="display: inline-block; margin-top: 15px;"><i class="fas fa-plus-circle"></i> Publicar Libro</a></div>`;
+            
+            document.getElementById('editNombre').value = userData.nombre || '';
+            document.getElementById('editCarrera').value = userData.carrera || '';
+            document.getElementById('editSemestre').value = userData.semestre || '';
+            
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById(this.getAttribute('data-tab')).classList.add('active');
+                });
+            });
+            
+            const libros = JSON.parse(localStorage.getItem('librosPublicados') || '[]');
+            const misLibros = libros.filter(l => l.usuario === userData.email);
+            document.getElementById('librosPublicados').textContent = misLibros.length;
+            document.getElementById('misLibrosList').innerHTML = misLibros.length ? misLibros.map(l => `<div class="libro-item"><h4>${l.titulo}</h4><p>Autor: ${l.autor} | Precio: $${l.precio}</p><span class="status-disponible">Disponible</span></div>`).join('') : '<p>No has publicado ningún libro aún. <a href="vender.html">Publica tu primer libro</a></p>';
+            
+            document.getElementById('profileForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                Auth.updateUserData({ nombre: document.getElementById('editNombre').value, carrera: document.getElementById('editCarrera').value, semestre: document.getElementById('editSemestre').value });
+                alert('Perfil actualizado');
+                location.reload();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publicar Libro - Bibliotrueque UPIICSA</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sell-form { max-width: 800px; margin: 0 auto; background: white; border-radius: 15px; padding: 40px; border-top: 5px solid var(--primary-green); }
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .image-upload { border: 2px dashed var(--gray); border-radius: 10px; padding: 40px; text-align: center; cursor: pointer; margin-bottom: 20px; }
+        .image-upload:hover { border-color: var(--primary-green); background: rgba(76,175,80,0.05); }
+        .preview-container { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
+        .preview-img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; position: relative; }
+        .radio-group { display: flex; gap: 20px; flex-wrap: wrap; }
+        .form-section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--gray); }
+        .form-section h3 { color: var(--primary-green); margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <header><div class="container"><nav class="nav-container"><div class="logo-container"><a href="index.html" class="logo-link"><div class="logo-img"><svg width="50" height="50" viewBox="0 0 50 50"><rect width="50" height="50" rx="8" fill="#2E7D32"/><path d="M12 15H38V35H12V15Z" fill="#81C784"/><path d="M15 20L25 12L35 20V30H15V20Z" fill="#4CAF50"/><path d="M20 25H30M20 28H30" stroke="white" stroke-width="2"/><path d="M25 20V30" stroke="white" stroke-width="2"/><text x="25" y="42" text-anchor="middle" fill="white" font-size="8">BT</text></svg></div><div class="logo-text"><div class="logo-main">BIBLIO TRUECUE UPIICSA</div><div class="logo-sub">Mercado seguro de libros</div><div class="slogan">"No se cambia un libro, se cambia una vida"</div></div></a></div><div class="user-actions" id="userActions"></div></nav></div></header>
+
+    <section style="padding: 40px 0;"><div class="container"><h1 class="page-title">Publicar Libro</h1>
+        <form id="sellForm" class="sell-form">
+            <div class="form-section"><h3><i class="fas fa-book"></i> Información del Libro</h3>
+                <div class="form-row"><div class="form-group"><label class="form-label">Título *</label><input type="text" id="titulo" class="form-input" required></div>
+                <div class="form-group"><label class="form-label">Autor *</label><input type="text" id="autor" class="form-input" required></div></div>
+                <div class="form-row"><div class="form-group"><label class="form-label">ISBN</label><input type="text" id="isbn" class="form-input" placeholder="Opcional"></div>
+                <div class="form-group"><label class="form-label">Materia *</label><input type="text" id="materia" class="form-input" required></div></div>
+                <div class="form-row"><div class="form-group"><label class="form-label">Carrera *</label><select id="carrera" class="form-select" required><option value="">Seleccionar</option><option value="informatica">Ing. Informática</option><option value="industrial">Ing. Industrial</option><option value="transporte">Ing. Transporte</option><option value="administracion">Administración</option></select></div>
+                <div class="form-group"><label class="form-label">Semestre *</label><select id="semestre" class="form-select" required><option value="">Seleccionar</option><option value="1">1er</option><option value="2">2do</option><option value="3">3er</option><option value="4">4to</option><option value="5">5to</option><option value="6">6to</option><option value="7">7mo</option><option value="8">8vo</option></select></div></div>
+            </div>
+            <div class="form-section"><h3><i class="fas fa-camera"></i> Imágenes</h3>
+                <div class="image-upload" id="imageUpload"><i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--primary-green);"></i><p>Haz clic para seleccionar imágenes</p><input type="file" id="fileInput" accept="image/*" multiple style="display: none;"></div>
+                <div class="preview-container" id="previewContainer"></div>
+            </div>
+            <div class="form-section"><h3><i class="fas fa-tag"></i> Estado y Precio</h3>
+                <div class="form-group"><label class="form-label">Estado *</label><div class="radio-group"><label><input type="radio" name="estado" value="nuevo" required> Nuevo</label><label><input type="radio" name="estado" value="como-nuevo"> Como nuevo</label><label><input type="radio" name="estado" value="subrayado"> Subrayado</label><label><input type="radio" name="estado" value="usado"> Usado</label></div></div>
+                <div class="form-group"><label class="form-label">Precio (MXN) *</label><input type="number" id="precio" class="form-input" min="0" required></div>
+                <div class="form-group"><label class="form-label">Descripción</label><textarea id="descripcion" class="form-textarea" placeholder="Describe el estado del libro..."></textarea></div>
+            </div>
+            <button type="submit" class="submit-btn"><i class="fas fa-check-circle"></i> Publicar Libro</button>
+            <div class="success-message" id="successMessage">¡Libro publicado exitosamente!</div>
+        </form>
+    </div></section>
+
+    <footer>...</footer>
+
+    <script src="js/auth.js"></script>
+    <script>
+        let selectedImages = [];
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!Auth.requireAuth()) return;
+            
+            const imageUpload = document.getElementById('imageUpload');
+            const fileInput = document.getElementById('fileInput');
+            imageUpload.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', function(e) {
+                Array.from(e.target.files).forEach(file => {
+                    if (selectedImages.length >= 5) return alert('Máximo 5 imágenes');
+                    if (file.size > 2 * 1024 * 1024) return alert('Imagen muy grande (máx 2MB)');
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        selectedImages.push(ev.target.result);
+                        updatePreview();
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+            
+            function updatePreview() {
+                document.getElementById('previewContainer').innerHTML = selectedImages.map((img, i) => `<div style="position: relative;"><img src="${img}" class="preview-img"><button type="button" onclick="selectedImages.splice(${i},1); updatePreview();" style="position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 20px; cursor: pointer;">×</button></div>`).join('');
+            }
+            
+            document.getElementById('sellForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (selectedImages.length === 0) return alert('Sube al menos una imagen');
+                const libro = {
+                    id: 'lib-' + Date.now(),
+                    titulo: document.getElementById('titulo').value,
+                    autor: document.getElementById('autor').value,
+                    isbn: document.getElementById('isbn').value,
+                    materia: document.getElementById('materia').value,
+                    carrera: document.getElementById('carrera').value,
+                    semestre: document.getElementById('semestre').value,
+                    estado: document.querySelector('input[name="estado"]:checked').value,
+                    precio: document.getElementById('precio').value,
+                    descripcion: document.getElementById('descripcion').value,
+                    imagenes: selectedImages,
+                    usuario: Auth.getUserData().email,
+                    fecha: new Date().toISOString()
+                };
+                const libros = JSON.parse(localStorage.getItem('librosPublicados') || '[]');
+                libros.push(libro);
+                localStorage.setItem('librosPublicados', JSON.stringify(libros));
+                document.getElementById('successMessage').style.display = 'block';
+                setTimeout(() => window.location.href = 'perfil.html', 2000);
+            });
+        });
+    </script>
+</body>
+</html>

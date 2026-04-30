@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bibliotrueque UPIICSA - Inicio</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="nav-container">
+                <div class="logo-container">
+                    <a href="index.html" class="logo-link">
+                        <div class="logo-img">
+                            <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="50" height="50" rx="8" fill="#2E7D32"/>
+                                <path d="M12 15H38V35H12V15Z" fill="#81C784"/>
+                                <path d="M15 20L25 12L35 20V30H15V20Z" fill="#4CAF50"/>
+                                <path d="M20 25H30M20 28H30" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M25 20V30" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                                <text x="25" y="42" text-anchor="middle" fill="white" font-size="8" font-weight="bold">BT</text>
+                            </svg>
+                        </div>
+                        <div class="logo-text">
+                            <div class="logo-main">BIBLIO TRUECUE UPIICSA</div>
+                            <div class="logo-sub">Mercado seguro de libros</div>
+                            <div class="slogan">"No se cambia un libro, se cambia una vida"</div>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="user-actions" id="userActions">
+                    <!-- Se llena dinámicamente con JavaScript -->
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Encuentra los libros que necesitas</h1>
+            <p>Compra, vende o intercambia libros académicos con estudiantes verificados de la UPIICSA. Ahorra hasta un 70% en tus libros de texto.</p>
+            
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="Buscar por título, autor, materia o ISBN...">
+                <button class="search-btn" id="searchBtn">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="categories-section">
+        <div class="container">
+            <h2 class="section-title">Explora por Carrera</h2>
+            <div class="categories-container">
+                <a href="#" class="category-card" data-carrera="informatica">
+                    <div class="category-icon"><i class="fas fa-laptop-code"></i></div>
+                    <h3>Ing. Informática</h3>
+                    <div class="book-count">142 libros</div>
+                </a>
+                <a href="#" class="category-card" data-carrera="industrial">
+                    <div class="category-icon"><i class="fas fa-industry"></i></div>
+                    <h3>Ing. Industrial</h3>
+                    <div class="book-count">98 libros</div>
+                </a>
+                <a href="#" class="category-card" data-carrera="transporte">
+                    <div class="category-icon"><i class="fas fa-truck-moving"></i></div>
+                    <h3>Ing. Transporte</h3>
+                    <div class="book-count">76 libros</div>
+                </a>
+                <a href="#" class="category-card" data-carrera="administracion">
+                    <div class="category-icon"><i class="fas fa-chart-line"></i></div>
+                    <h3>Administración</h3>
+                    <div class="book-count">115 libros</div>
+                </a>
+                <a href="#" class="category-card" data-carrera="matematicas">
+                    <div class="category-icon"><i class="fas fa-calculator"></i></div>
+                    <h3>Matemáticas</h3>
+                    <div class="book-count">89 libros</div>
+                </a>
+                <a href="#" class="category-card" data-carrera="fisica">
+                    <div class="category-icon"><i class="fas fa-flask"></i></div>
+                    <h3>Física/Química</h3>
+                    <div class="book-count">67 libros</div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="featured-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Libros Destacados</h2>
+                <a href="#" class="view-all" id="viewAllBtn">Ver todos los libros <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="books-container" id="booksContainer"></div>
+        </div>
+    </section>
+
+    <section class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">¿Cómo funciona?</h2>
+            <div class="steps-container">
+                <div class="step-card"><div class="step-number">1</div><h3>Regístrate</h3><p>Usa tu correo institucional @alumno.ipn.mx para crear una cuenta verificada.</p></div>
+                <div class="step-card"><div class="step-number">2</div><h3>Busca o Publica</h3><p>Encuentra el libro que necesitas o publica los que ya no uses.</p></div>
+                <div class="step-card"><div class="step-number">3</div><h3>Contacta</h3><p>Usa el chat interno para acordar detalles con el vendedor/comprador.</p></div>
+                <div class="step-card"><div class="step-number">4</div><h3>Intercambia</h3><p>Encuéntrate en un punto seguro dentro de UPIICSA para hacer el intercambio.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="sell-section">
+        <div class="container">
+            <h2>¿Tienes libros que ya no usas?</h2>
+            <p>Véndelos o intercámbialos en Bibliotrueque UPIICSA. Publica un libro en menos de 3 minutos.</p>
+            <a href="vender.html" class="action-btn" id="sellBtn"><i class="fas fa-plus-circle"></i><span>Publicar un libro</span></a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-about">
+                    <div class="footer-logo">BIBLIO<span>TRUECUE</span></div>
+                    <p>Tienda en línea de libros académicos para la comunidad UPIICSA.</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h3>Categorías</h3>
+                    <ul>
+                        <li><a href="#">Ing. Informática</a></li>
+                        <li><a href="#">Ing. Industrial</a></li>
+                        <li><a href="#">Ing. Transporte</a></li>
+                        <li><a href="#">Administración</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h3>Contacto</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> UPIICSA, IPN</p>
+                    <p><i class="fas fa-envelope"></i> ventas@bibliotrueque-upiicsa.mx</p>
+                    <p><i class="fas fa-user-check"></i> Solo comunidad IPN</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 Bibliotrueque UPIICSA. Proyecto estudiantil.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFeaturedBooks();
+            updateCartCount();
+            
+            document.getElementById('searchBtn')?.addEventListener('click', function() {
+                const query = document.getElementById('searchInput').value.trim();
+                if (query) searchBooks(query);
+                else alert('Ingresa un término de búsqueda');
+            });
+            
+            document.querySelectorAll('.category-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    filterByCareer(this.getAttribute('data-carrera'));
+                });
+            });
+            
+            document.getElementById('viewAllBtn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('Catálogo completo - Próximamente');
+            });
+        });
+    </script>
+</body>
+</html>

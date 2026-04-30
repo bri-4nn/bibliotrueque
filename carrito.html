@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito - Bibliotrueque UPIICSA</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .cart-content { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+        @media (max-width: 992px) { .cart-content { grid-template-columns: 1fr; } }
+        .cart-items { background: white; border-radius: 15px; padding: 30px; }
+        .cart-item { display: grid; grid-template-columns: 100px 1fr auto; gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--gray); align-items: center; }
+        .cart-item-image { width: 80px; height: 100px; background: var(--light-gray); display: flex; align-items: center; justify-content: center; border-radius: 8px; }
+        .quantity-control { display: flex; gap: 10px; align-items: center; justify-content: center; }
+        .quantity-btn { width: 30px; height: 30px; border: 1px solid var(--primary-green); background: white; border-radius: 50%; cursor: pointer; }
+        .cart-summary { background: white; border-radius: 15px; padding: 30px; position: sticky; top: 100px; }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .summary-total { font-size: 1.3rem; font-weight: bold; color: var(--primary-green); margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--gray); }
+        .empty-cart { text-align: center; padding: 60px; }
+        .remove-item { background: none; border: none; color: var(--red-accent); cursor: pointer; margin-top: 10px; }
+        @media (max-width: 768px) { .cart-item { grid-template-columns: 1fr; text-align: center; } }
+    </style>
+</head>
+<body>
+    <header><div class="container"><nav class="nav-container"><div class="logo-container"><a href="index.html" class="logo-link"><div class="logo-img"><svg width="50" height="50" viewBox="0 0 50 50"><rect width="50" height="50" rx="8" fill="#2E7D32"/><path d="M12 15H38V35H12V15Z" fill="#81C784"/><path d="M15 20L25 12L35 20V30H15V20Z" fill="#4CAF50"/><path d="M20 25H30M20 28H30" stroke="white" stroke-width="2"/><path d="M25 20V30" stroke="white" stroke-width="2"/><text x="25" y="42" text-anchor="middle" fill="white" font-size="8">BT</text></svg></div><div class="logo-text"><div class="logo-main">BIBLIO TRUECUE UPIICSA</div><div class="logo-sub">Mercado seguro de libros</div><div class="slogan">"No se cambia un libro, se cambia una vida"</div></div></a></div><div class="user-actions" id="userActions"></div></nav></div></header>
+
+    <section style="padding: 40px 0;"><div class="container"><h1 class="page-title">Mi Carrito</h1><div id="cartContent"></div></div></section>
+
+    <footer>...</footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        function loadCart() {
+            const cart = getCart();
+            const container = document.getElementById('cartContent');
+            if (cart.length === 0) {
+                container.innerHTML = `<div class="empty-cart"><i class="fas fa-shopping-cart" style="font-size: 4rem; color: var(--gray);"></i><h3>Tu carrito está vacío</h3><a href="index.html" class="action-btn">Explorar Libros</a></div>`;
+                return;
+            }
+            let subtotal = getCartTotal();
+            container.innerHTML = `<div class="cart-content"><div class="cart-items"><h3>Libros (${cart.length})</h3>${cart.map(item => `<div class="cart-item"><div class="cart-item-image"><i class="fas fa-book" style="font-size: 2rem;"></i></div><div><h4>${item.titulo}</h4><p>${item.autor} | ${item.estado}</p><div class="cart-item-price">$${item.precio} c/u</div></div><div><div class="quantity-control"><button class="quantity-btn" onclick="updateQty('${item.id}', -1)">-</button><span style="width: 40px; text-align: center;">${item.cantidad}</span><button class="quantity-btn" onclick="updateQty('${item.id}', 1)">+</button></div><button class="remove-item" onclick="removeItem('${item.id}')"><i class="fas fa-trash"></i> Eliminar</button></div></div>`).join('')}</div><div class="cart-summary"><h3>Resumen</h3><div class="summary-item"><span>Subtotal</span><span>$${subtotal}</span></div><div class="summary-item"><span>Envío</span><span>$0</span></div><div class="summary-total"><span>Total</span><span>$${subtotal}</span></div><button class="submit-btn" onclick="checkout()" style="width: 100%;"><i class="fas fa-credit-card"></i> Proceder al Pago</button><a href="index.html" class="continue-shopping" style="display: block; text-align: center; margin-top: 20px;">Seguir comprando</a></div></div>`;
+        }
+        
+        function updateQty(id, change) {
+            let cart = getCart();
+            let item = cart.find(i => i.id === id);
+            if (item) {
+                let newQty = (item.cantidad || 1) + change;
+                if (newQty >= 1 && newQty <= 10) {
+                    updateCartItemQuantity(id, newQty);
+                    loadCart();
+                }
+            }
+        }
+        
+        function removeItem(id) {
+            removeFromCart(id);
+            loadCart();
+        }
+        
+        function checkout() {
+            if (!Auth.isAuthenticated()) {
+                alert('Debes iniciar sesión para continuar');
+                window.location.href = 'login.html';
+                return;
+            }
+            const cart = getCart();
+            if (cart.length === 0) return alert('Carrito vacío');
+            if (confirm(`Total: $${getCartTotal()}\n¿Confirmar compra?`)) {
+                localStorage.removeItem('cart');
+                updateCartCount();
+                alert('¡Compra realizada con éxito! Los vendedores se contactarán contigo.');
+                window.location.href = 'index.html';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadCart);
+    </script>
+</body>
+</html>

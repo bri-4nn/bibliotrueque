@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Bibliotrueque UPIICSA</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="nav-container">
+                <div class="logo-container">
+                    <a href="index.html" class="logo-link">
+                        <div class="logo-img"><svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="50" height="50" rx="8" fill="#2E7D32"/><path d="M12 15H38V35H12V15Z" fill="#81C784"/><path d="M15 20L25 12L35 20V30H15V20Z" fill="#4CAF50"/><path d="M20 25H30M20 28H30" stroke="white" stroke-width="2"/><path d="M25 20V30" stroke="white" stroke-width="2"/><text x="25" y="42" text-anchor="middle" fill="white" font-size="8" font-weight="bold">BT</text></svg></div>
+                        <div class="logo-text"><div class="logo-main">BIBLIO TRUECUE UPIICSA</div><div class="logo-sub">Mercado seguro de libros</div><div class="slogan">"No se cambia un libro, se cambia una vida"</div></div>
+                    </a>
+                </div>
+                <div class="user-actions">
+                    <a href="index.html" class="action-btn secondary"><i class="fas fa-home"></i><span>Inicio</span></a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="form-container">
+        <div class="form-card">
+            <div class="form-header">
+                <h2>Iniciar Sesión</h2>
+                <p>Accede con tu correo institucional IPN</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="email">Correo Institucional</label>
+                    <input type="email" id="email" class="form-input" placeholder="ejemplo@alumno.ipn.mx" required>
+                    <div class="error-message" id="emailError">Debes usar un correo @alumno.ipn.mx o @ipn.mx</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">Contraseña</label>
+                    <input type="password" id="password" class="form-input" placeholder="Tu contraseña" required>
+                    <div class="error-message" id="passwordError">La contraseña es requerida</div>
+                </div>
+                <button type="submit" class="submit-btn"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</button>
+            </form>
+            <div class="form-footer">
+                <p>¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a></p>
+                <p><a href="#">¿Olvidaste tu contraseña?</a></p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-about"><div class="footer-logo">BIBLIO<span>TRUECUE</span></div><p>Plataforma exclusiva para la comunidad UPIICSA.</p></div>
+                <div class="footer-contact"><h3>Contacto</h3><p><i class="fas fa-envelope"></i> soporte@bibliotrueque-upiicsa.mx</p><p><i class="fas fa-user-check"></i> Solo comunidad IPN</p></div>
+            </div>
+            <div class="copyright"><p>&copy; 2024 Bibliotrueque UPIICSA.</p></div>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (Auth.isAuthenticated()) window.location.href = 'index.html';
+            
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                document.getElementById('emailError').style.display = 'none';
+                document.getElementById('passwordError').style.display = 'none';
+                
+                let isValid = true;
+                if (!Auth.isValidIPNEmail(email)) {
+                    document.getElementById('emailError').style.display = 'block';
+                    isValid = false;
+                }
+                if (password.length < 6) {
+                    document.getElementById('passwordError').style.display = 'block';
+                    isValid = false;
+                }
+                if (!isValid) return;
+                
+                try {
+                    const user = Auth.login(email, password);
+                    alert(`¡Bienvenido ${user.nombre || user.email.split('@')[0]}!`);
+                    const redirect = localStorage.getItem('redirectAfterLogin') || 'index.html';
+                    localStorage.removeItem('redirectAfterLogin');
+                    window.location.href = redirect;
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
