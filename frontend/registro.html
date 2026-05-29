@@ -90,34 +90,63 @@
     <script src="js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            if (Auth.isAuthenticated()) window.location.href = 'index.html';
-            
-            document.getElementById('registerForm').addEventListener('submit', function(e) {
+            if (Auth.isAuthenticated()) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const form = document.getElementById('registerForm');
+            form.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const nombre = document.getElementById('nombre').value;
-                const email = document.getElementById('email').value;
+
+                const nombre = document.getElementById('nombre').value.trim();
+                const email = document.getElementById('email').value.trim();
                 const carrera = document.getElementById('carrera').value;
                 const semestre = document.getElementById('semestre').value;
                 const password = document.getElementById('password').value;
                 const confirmPassword = document.getElementById('confirmPassword').value;
                 const terminos = document.getElementById('terminos').checked;
-                
+
+                // Limpiar errores previos
                 document.querySelectorAll('.error-message').forEach(err => err.style.display = 'none');
+
                 let isValid = true;
-                
-                if (nombre.trim() === '') { document.getElementById('nombreError').style.display = 'block'; isValid = false; }
-                if (!Auth.isValidIPNEmail(email)) { document.getElementById('emailError').style.display = 'block'; isValid = false; }
-                if (carrera === '') { document.getElementById('carreraError').style.display = 'block'; isValid = false; }
-                if (semestre === '') { document.getElementById('semestreError').style.display = 'block'; isValid = false; }
-                if (password.length < 8) { document.getElementById('passwordError').style.display = 'block'; isValid = false; }
-                if (password !== confirmPassword) { document.getElementById('confirmError').style.display = 'block'; isValid = false; }
-                if (!terminos) { document.getElementById('terminosError').style.display = 'block'; isValid = false; }
+                if (nombre === '') {
+                    document.getElementById('nombreError').style.display = 'block';
+                    isValid = false;
+                }
+                if (!Auth.isValidIPNEmail(email)) {
+                    document.getElementById('emailError').style.display = 'block';
+                    isValid = false;
+                }
+                if (carrera === '') {
+                    document.getElementById('carreraError').style.display = 'block';
+                    isValid = false;
+                }
+                if (semestre === '') {
+                    document.getElementById('semestreError').style.display = 'block';
+                    isValid = false;
+                }
+                if (password.length < 8) {
+                    document.getElementById('passwordError').style.display = 'block';
+                    isValid = false;
+                }
+                if (password !== confirmPassword) {
+                    document.getElementById('confirmError').style.display = 'block';
+                    isValid = false;
+                }
+                if (!terminos) {
+                    document.getElementById('terminosError').style.display = 'block';
+                    isValid = false;
+                }
                 if (!isValid) return;
-                
+
                 try {
-                    Auth.register({ nombre, email, carrera, semestre, password });
+                    await Auth.register({ nombre, email, carrera, semestre, password });
                     document.getElementById('successMessage').style.display = 'block';
-                    setTimeout(() => { window.location.href = 'perfil.html'; }, 2000);
+                    setTimeout(() => {
+                        window.location.href = 'perfil.html';
+                    }, 2000);
                 } catch (error) {
                     alert('Error: ' + error.message);
                 }

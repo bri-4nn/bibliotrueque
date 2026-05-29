@@ -7,5 +7,6 @@ router.use(verificarToken); // todas las rutas de carrito requieren auth
 router.get('/', carritoController.obtenerCarrito);
 router.post('/agregar', carritoController.agregarAlCarrito);
 router.delete('/:id', carritoController.eliminarDelCarrito);
+router.delete('/', carritoController.vaciarCarrito);
 
 module.exports = router;

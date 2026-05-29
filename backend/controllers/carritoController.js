@@ -34,4 +34,13 @@ async function eliminarDelCarrito(req, res) {
     }
 }
 
-module.exports = { obtenerCarrito, agregarAlCarrito, eliminarDelCarrito };
+async function vaciarCarrito(req, res) {
+    try {
+        await carritoModel.vaciarCarrito(req.usuario.id);
+        res.json({ mensaje: 'Carrito vaciado' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al vaciar carrito' });
+    }
+}
+
+module.exports = { obtenerCarrito, agregarAlCarrito, eliminarDelCarrito, vaciarCarrito };

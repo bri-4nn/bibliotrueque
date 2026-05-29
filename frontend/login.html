@@ -39,7 +39,7 @@
                 <div class="form-group">
                     <label class="form-label" for="password">Contraseña</label>
                     <input type="password" id="password" class="form-input" placeholder="Tu contraseña" required>
-                    <div class="error-message" id="passwordError">La contraseña es requerida</div>
+                    <div class="error-message" id="passwordError">La contraseña es requerida (mínimo 6 caracteres)</div>
                 </div>
                 <button type="submit" class="submit-btn"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</button>
             </form>
@@ -56,23 +56,30 @@
                 <div class="footer-about"><div class="footer-logo">BIBLIO<span>TRUECUE</span></div><p>Plataforma exclusiva para la comunidad UPIICSA.</p></div>
                 <div class="footer-contact"><h3>Contacto</h3><p><i class="fas fa-envelope"></i> soporte@bibliotrueque-upiicsa.mx</p><p><i class="fas fa-user-check"></i> Solo comunidad IPN</p></div>
             </div>
-            <div class="copyright"><p>&copy; 2024 Bibliotrueque UPIICSA.</p></div>
+            <div class="copyright"><p>&copy; 2025 Bibliotrueque UPIICSA.</p></div>
         </div>
     </footer>
 
     <script src="js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            if (Auth.isAuthenticated()) window.location.href = 'index.html';
-            
-            document.getElementById('loginForm').addEventListener('submit', function(e) {
+            // Si ya está autenticado, redirigir al inicio
+            if (Auth.isAuthenticated()) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const form = document.getElementById('loginForm');
+            form.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const email = document.getElementById('email').value;
+
+                const email = document.getElementById('email').value.trim();
                 const password = document.getElementById('password').value;
-                
+
+                // Limpiar mensajes de error previos
                 document.getElementById('emailError').style.display = 'none';
                 document.getElementById('passwordError').style.display = 'none';
-                
+
                 let isValid = true;
                 if (!Auth.isValidIPNEmail(email)) {
                     document.getElementById('emailError').style.display = 'block';
@@ -83,9 +90,9 @@
                     isValid = false;
                 }
                 if (!isValid) return;
-                
+
                 try {
-                    const user = Auth.login(email, password);
+                    const user = await Auth.login(email, password);
                     alert(`¡Bienvenido ${user.nombre || user.email.split('@')[0]}!`);
                     const redirect = localStorage.getItem('redirectAfterLogin') || 'index.html';
                     localStorage.removeItem('redirectAfterLogin');

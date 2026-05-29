@@ -62,50 +62,67 @@
     <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
     <script>
-        function loadCart() {
-            const cart = getCart();
-            const container = document.getElementById('cartContent');
-            if (cart.length === 0) {
-                container.innerHTML = `<div class="empty-cart"><i class="fas fa-shopping-cart" style="font-size: 4rem; color: var(--gray);"></i><h3>Tu carrito está vacío</h3><a href="index.html" class="action-btn">Explorar Libros</a></div>`;
-                return;
-            }
-            let subtotal = getCartTotal();
-            container.innerHTML = `<div class="cart-content"><div class="cart-items"><h3>Libros (${cart.length})</h3>${cart.map(item => `<div class="cart-item"><div class="cart-item-image"><i class="fas fa-book" style="font-size: 2rem;"></i></div><div><h4>${item.titulo}</h4><p>${item.autor} | ${item.estado}</p><div class="cart-item-price">$${item.precio} c/u</div></div><div><div class="quantity-control"><button class="quantity-btn" onclick="updateQty('${item.id}', -1)">-</button><span style="width: 40px; text-align: center;">${item.cantidad}</span><button class="quantity-btn" onclick="updateQty('${item.id}', 1)">+</button></div><button class="remove-item" onclick="removeItem('${item.id}')"><i class="fas fa-trash"></i> Eliminar</button></div></div>`).join('')}</div><div class="cart-summary"><h3>Resumen</h3><div class="summary-item"><span>Subtotal</span><span>$${subtotal}</span></div><div class="summary-item"><span>Envío</span><span>$0</span></div><div class="summary-total"><span>Total</span><span>$${subtotal}</span></div><button class="submit-btn" onclick="checkout()" style="width: 100%;"><i class="fas fa-credit-card"></i> Proceder al Pago</button><a href="index.html" class="continue-shopping" style="display: block; text-align: center; margin-top: 20px;">Seguir comprando</a></div></div>`;
-        }
-        
-        function updateQty(id, change) {
-            let cart = getCart();
-            let item = cart.find(i => i.id === id);
-            if (item) {
-                let newQty = (item.cantidad || 1) + change;
-                if (newQty >= 1 && newQty <= 10) {
-                    updateCartItemQuantity(id, newQty);
-                    loadCart();
-                }
-            }
-        }
-        
-        function removeItem(id) {
-            removeFromCart(id);
-            loadCart();
-        }
-        
-        function checkout() {
+        async function loadCart() {
             if (!Auth.isAuthenticated()) {
-                alert('Debes iniciar sesión para continuar');
                 window.location.href = 'login.html';
                 return;
             }
-            const cart = getCart();
-            if (cart.length === 0) return alert('Carrito vacío');
-            if (confirm(`Total: $${getCartTotal()}\n¿Confirmar compra?`)) {
-                localStorage.removeItem('cart');
-                updateCartCount();
-                alert('¡Compra realizada con éxito! Los vendedores se contactarán contigo.');
-                window.location.href = 'index.html';
+            const container = document.getElementById('cartContent');
+            try {
+                const cart = await getCart();
+                if (cart.length === 0) {
+                    container.innerHTML = `<div class="empty-cart"><i class="fas fa-shopping-cart" style="font-size: 4rem;"></i><h3>Tu carrito está vacío</h3><a href="index.html" class="action-btn">Explorar Libros</a></div>`;
+                    return;
+                }
+                let subtotal = 0;
+                let itemsHtml = '';
+                for (const item of cart) {
+                    subtotal += item.precio_ofertado * item.cantidad;
+                    itemsHtml += `
+                        <div class="cart-item">
+                            <div class="cart-item-image"><i class="fas fa-book" style="font-size: 2rem;"></i></div>
+                            <div>
+                                <h4>${escapeHtml(item.titulo)}</h4>
+                                <p>${escapeHtml(item.autor)} | ${item.condicion}</p>
+                                <div class="cart-item-price">$${item.precio_ofertado} c/u</div>
+                            </div>
+                            <div>
+                                <div class="quantity-control">
+                                    <button class="quantity-btn" onclick="updateQty(${item.carrito_id}, ${item.cantidad - 1})">-</button>
+                                    <span style="width: 40px; text-align: center;">${item.cantidad}</span>
+                                    <button class="quantity-btn" onclick="updateQty(${item.carrito_id}, ${item.cantidad + 1})">+</button>
+                                </div>
+                                <button class="remove-item" onclick="removeFromCart(${item.carrito_id})"><i class="fas fa-trash"></i> Eliminar</button>
+                            </div>
+                        </div>`;
+                }
+                container.innerHTML = `
+                    <div class="cart-content">
+                        <div class="cart-items"><h3>Libros (${cart.length})</h3>${itemsHtml}</div>
+                        <div class="cart-summary">
+                            <h3>Resumen</h3>
+                            <div class="summary-item"><span>Subtotal</span><span>$${subtotal}</span></div>
+                            <div class="summary-item"><span>Envío</span><span>$0</span></div>
+                            <div class="summary-total"><span>Total</span><span>$${subtotal}</span></div>
+                            <button class="submit-btn" onclick="checkout()" style="width: 100%;"><i class="fas fa-credit-card"></i> Proceder al Pago</button>
+                            <a href="index.html" class="continue-shopping" style="display: block; text-align: center; margin-top: 20px;">Seguir comprando</a>
+                        </div>
+                    </div>`;
+            } catch (error) {
+                container.innerHTML = `<p>Error al cargar carrito: ${error.message}</p>`;
             }
         }
-        
+
+        async function updateQty(carritoId, nuevaCantidad) {
+            if (nuevaCantidad <= 0) {
+                await removeFromCart(carritoId);
+            } else {
+                // Necesitamos un endpoint para actualizar cantidad. Como no está, notificamos.
+                alert('Cambio de cantidad no disponible aún. Elimina y vuelve a agregar.');
+            }
+            loadCart();
+        }
+
         document.addEventListener('DOMContentLoaded', loadCart);
     </script>
 </body>

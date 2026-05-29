@@ -1,22 +1,28 @@
-// js/auth.js - Sistema de autenticación global
+const API_BASE = 'http://localhost:3000/api';
+
+// Almacenar token y usuario
+function setAuthData(token, user) {
+    localStorage.setItem('token', token);
+    localStorage.setItem('userData', JSON.stringify(user));
+}
+
+// Obtener token
+function getToken() {
+    return localStorage.getItem('token');
+}
 
 // Verificar si el usuario está autenticado
 function isAuthenticated() {
-    const userLoggedIn = localStorage.getItem('userLoggedIn');
-    const userData = localStorage.getItem('userData');
-    
-    return userLoggedIn === 'true' && userData !== null;
+    return getToken() !== null;
 }
 
-// Obtener datos del usuario
+// Obtener datos del usuario desde localStorage (cache)
 function getUserData() {
-    if (isAuthenticated()) {
-        return JSON.parse(localStorage.getItem('userData'));
-    }
-    return null;
+    const data = localStorage.getItem('userData');
+    return data ? JSON.parse(data) : null;
 }
 
-// Redirigir a login si no está autenticado
+// Redirigir a login si no autenticado
 function requireAuth(redirectTo = 'login.html') {
     if (!isAuthenticated()) {
         const currentPage = window.location.pathname.split('/').pop();
@@ -30,7 +36,7 @@ function requireAuth(redirectTo = 'login.html') {
     return true;
 }
 
-// Verificar si el correo es institucional IPN
+// Validar correo IPN (mantenemos la misma función)
 function isValidIPNEmail(email) {
     return email.endsWith('@alumno.ipn.mx') || email.endsWith('@ipn.mx');
 }
@@ -38,7 +44,7 @@ function isValidIPNEmail(email) {
 // Cerrar sesión
 function logout() {
     if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-        localStorage.removeItem('userLoggedIn');
+        localStorage.removeItem('token');
         localStorage.removeItem('userData');
         updateUserActionsUI();
         showNotification('Sesión cerrada correctamente', 'success');
@@ -48,116 +54,69 @@ function logout() {
     }
 }
 
-// Iniciar sesión
-function login(email, password) {
-    // Validar correo IPN
+// Iniciar sesión (API)
+async function login(email, password) {
     if (!isValidIPNEmail(email)) {
         throw new Error('Debes usar un correo institucional IPN (@alumno.ipn.mx o @ipn.mx)');
     }
-    
-    // Validar contraseña (mínimo 6 caracteres)
-    if (!password || password.length < 6) {
-        throw new Error('La contraseña debe tener al menos 6 caracteres');
+    const response = await fetch(`${API_BASE}/usuarios/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.error || 'Error al iniciar sesión');
     }
-    
-    // Buscar usuario registrado
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = users.find(u => u.email === email);
-    
-    if (!user) {
-        throw new Error('Usuario no encontrado. Por favor regístrate primero.');
-    }
-    
-    if (user.password !== password) {
-        throw new Error('Contraseña incorrecta');
-    }
-    
-    const userData = {
-        email: user.email,
-        nombre: user.nombre,
-        carrera: user.carrera,
-        semestre: user.semestre,
-        fechaLogin: new Date().toISOString()
-    };
-    
-    localStorage.setItem('userLoggedIn', 'true');
-    localStorage.setItem('userData', JSON.stringify(userData));
-    
-    return userData;
+    setAuthData(data.token, data.usuario);
+    return data.usuario;
 }
 
-// Registrar usuario
-function register(userData) {
-    // Validar correo IPN
+// Registrar usuario (API)
+async function register(userData) {
     if (!isValidIPNEmail(userData.email)) {
         throw new Error('Debes usar un correo institucional IPN (@alumno.ipn.mx o @ipn.mx)');
     }
-    
-    // Validar que el correo no esté ya registrado
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    if (users.find(u => u.email === userData.email)) {
-        throw new Error('Este correo ya está registrado');
+    const response = await fetch(`${API_BASE}/usuarios/registro`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData)
+    });
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.error || 'Error en el registro');
     }
-    
-    // Validar contraseña
-    if (userData.password.length < 8) {
-        throw new Error('La contraseña debe tener al menos 8 caracteres');
-    }
-    
-    // Guardar usuario
-    const newUser = {
-        email: userData.email,
-        nombre: userData.nombre,
-        carrera: userData.carrera,
-        semestre: userData.semestre,
-        password: userData.password,
-        fechaRegistro: new Date().toISOString()
-    };
-    
-    users.push(newUser);
-    localStorage.setItem('users', JSON.stringify(users));
-    
-    const sessionData = {
-        email: newUser.email,
-        nombre: newUser.nombre,
-        carrera: newUser.carrera,
-        semestre: newUser.semestre,
-        fechaLogin: new Date().toISOString()
-    };
-    
-    localStorage.setItem('userLoggedIn', 'true');
-    localStorage.setItem('userData', JSON.stringify(sessionData));
-    
-    return sessionData;
+    setAuthData(data.token, data.usuario);
+    return data.usuario;
 }
 
-// Actualizar datos del usuario
-function updateUserData(updatedData) {
-    if (!isAuthenticated()) {
-        throw new Error('Usuario no autenticado');
+// Actualizar datos del perfil (API)
+async function updateUserData(updatedData) {
+    const token = getToken();
+    if (!token) throw new Error('No autenticado');
+    const response = await fetch(`${API_BASE}/usuarios/perfil`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updatedData)
+    });
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.error || 'Error al actualizar perfil');
     }
-    
-    const currentData = getUserData();
-    const newData = { ...currentData, ...updatedData };
-    
-    // Actualizar en la lista de usuarios
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const userIndex = users.findIndex(u => u.email === currentData.email);
-    
-    if (userIndex !== -1) {
-        users[userIndex] = { ...users[userIndex], ...updatedData };
-        localStorage.setItem('users', JSON.stringify(users));
-    }
-    
-    localStorage.setItem('userData', JSON.stringify(newData));
-    return newData;
+    // Actualizar cache local
+    const current = getUserData();
+    const newUser = { ...current, ...updatedData };
+    localStorage.setItem('userData', JSON.stringify(newUser));
+    return newUser;
 }
 
-// Actualizar la UI del header
+// Actualizar UI del header (usando datos reales)
 function updateUserActionsUI() {
     const userActions = document.getElementById('userActions');
     if (!userActions) return;
-    
     if (isAuthenticated()) {
         const userData = getUserData();
         userActions.innerHTML = `
@@ -173,7 +132,7 @@ function updateUserActionsUI() {
                 <i class="fas fa-shopping-cart"></i>
                 <span class="cart-count">0</span>
             </a>
-            <button class="action-btn secondary" onclick="logout()" style="cursor: pointer;">
+            <button class="action-btn secondary" onclick="window.Auth.logout()" style="cursor: pointer;">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Cerrar Sesión</span>
             </button>
@@ -194,14 +153,13 @@ function updateUserActionsUI() {
             </a>
         `;
     }
-    
-    // Actualizar contador del carrito
-    if (typeof updateCartCount === 'function') {
-        updateCartCount();
+    // Actualizar contador del carrito (función global)
+    if (typeof window.updateCartCount === 'function') {
+        window.updateCartCount();
     }
 }
 
-// Exportar funciones para uso global
+// Exportar funciones globalmente
 window.Auth = {
     isAuthenticated,
     getUserData,
@@ -211,5 +169,11 @@ window.Auth = {
     register,
     logout,
     updateUserData,
-    updateUserActionsUI
+    updateUserActionsUI,
+    getToken
 };
+
+// Inicializar UI cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+    updateUserActionsUI();
+});

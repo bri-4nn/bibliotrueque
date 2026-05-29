@@ -43,41 +43,56 @@
     <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             if (!Auth.requireAuth()) return;
             const userData = Auth.getUserData();
-            
+            // Mostrar encabezado
             document.getElementById('profileHeader').innerHTML = `
                 <div class="profile-avatar">${(userData.nombre || userData.email).charAt(0).toUpperCase()}</div>
-                <div class="profile-info"><h2>${userData.nombre || userData.email.split('@')[0]}</h2>
-                <p><i class="fas fa-envelope"></i> ${userData.email}</p>
-                <p><i class="fas fa-graduation-cap"></i> ${getCarreraName(userData.carrera) || 'No especificada'}</p>
-                <p><i class="fas fa-calendar"></i> Semestre ${userData.semestre || 'No especificado'}</p>
-                <a href="vender.html" class="action-btn" style="display: inline-block; margin-top: 15px;"><i class="fas fa-plus-circle"></i> Publicar Libro</a></div>`;
-            
+                <div class="profile-info">
+                    <h2>${userData.nombre || userData.email.split('@')[0]}</h2>
+                    <p><i class="fas fa-envelope"></i> ${userData.email}</p>
+                    <p><i class="fas fa-graduation-cap"></i> ${getCarreraName(userData.carrera) || 'No especificada'}</p>
+                    <p><i class="fas fa-calendar"></i> Semestre ${userData.semestre || 'No especificado'}</p>
+                    <a href="vender.html" class="action-btn" style="display: inline-block; margin-top: 15px;"><i class="fas fa-plus-circle"></i> Publicar Libro</a>
+                </div>`;
+
+            // Cargar libros publicados por el usuario desde API
+            try {
+                const token = Auth.getToken();
+                const response = await fetch('http://localhost:3000/api/libros/usuario/mis-libros', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const libros = await response.json();
+                    document.getElementById('librosPublicados').textContent = libros.length;
+                    document.getElementById('misLibrosList').innerHTML = libros.length ?
+                        libros.map(l => `<div class="libro-item"><h4>${l.titulo}</h4><p>Autor: ${l.autor} | Precio: $${l.precio_ofertado}</p><span class="status-disponible">${l.estado_pub}</span></div>`).join('') :
+                        '<p>No has publicado ningún libro aún. <a href="vender.html">Publica tu primer libro</a></p>';
+                }
+            } catch (error) {
+                console.error(error);
+            }
+
+            // Rellenar formulario de edición
             document.getElementById('editNombre').value = userData.nombre || '';
             document.getElementById('editCarrera').value = userData.carrera || '';
             document.getElementById('editSemestre').value = userData.semestre || '';
-            
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    this.classList.add('active');
-                    document.getElementById(this.getAttribute('data-tab')).classList.add('active');
-                });
-            });
-            
-            const libros = JSON.parse(localStorage.getItem('librosPublicados') || '[]');
-            const misLibros = libros.filter(l => l.usuario === userData.email);
-            document.getElementById('librosPublicados').textContent = misLibros.length;
-            document.getElementById('misLibrosList').innerHTML = misLibros.length ? misLibros.map(l => `<div class="libro-item"><h4>${l.titulo}</h4><p>Autor: ${l.autor} | Precio: $${l.precio}</p><span class="status-disponible">Disponible</span></div>`).join('') : '<p>No has publicado ningún libro aún. <a href="vender.html">Publica tu primer libro</a></p>';
-            
-            document.getElementById('profileForm').addEventListener('submit', function(e) {
+
+            // Envío del formulario de actualización
+            document.getElementById('profileForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                Auth.updateUserData({ nombre: document.getElementById('editNombre').value, carrera: document.getElementById('editCarrera').value, semestre: document.getElementById('editSemestre').value });
-                alert('Perfil actualizado');
-                location.reload();
+                try {
+                    await Auth.updateUserData({
+                        nombre: document.getElementById('editNombre').value,
+                        carrera: document.getElementById('editCarrera').value,
+                        semestre: parseInt(document.getElementById('editSemestre').value)
+                    });
+                    alert('Perfil actualizado');
+                    location.reload();
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
             });
         });
     </script>
