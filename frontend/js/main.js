@@ -1,5 +1,3 @@
-const API_BASE = 'http://localhost:3000/api';
-
 // Función para hacer fetch con token (cuando sea necesario)
 async function fetchWithAuth(endpoint, options = {}) {
     const token = Auth.getToken();
